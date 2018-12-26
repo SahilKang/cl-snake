@@ -57,6 +57,62 @@
     (with-color *food-color*
       (call-next-method))))
 
+(defun draw-border-corners (top-left bottom-right)
+  "Draw the border corners."
+  (with-color *food-color*
+    (let ((*pixel-char* #\+)
+	  (bottom-left (point (x top-left) (y bottom-right)))
+	  (top-right (point (x bottom-right) (y top-left))))
+      (draw top-left)
+      (draw bottom-right)
+      (draw bottom-left)
+      (draw top-right))))
+
+(defun draw-border-edges (top-left bottom-right)
+  (flet ((draw-char (x y char) (charms/ll:mvaddch y x (char-code char))))
+    (with-color *border-color*
+
+      ;; top and bottom edges
+      (loop
+	 with top-y = (y top-left)
+	 with bottom-y = (y bottom-right)
+
+	 for x from (+ 1 (x top-left)) below (x bottom-right)
+
+	 do (draw-char x top-y #\-)
+	 do (draw-char x bottom-y #\-))
+
+      ;; left and right edges
+      (loop
+	 with left-x = (x top-left)
+	 with right-x = (x bottom-right)
+
+	 for y from (+ 1 (y top-left)) below (y bottom-right)
+
+	 do (draw-char left-x y #\|)
+	 do (draw-char right-x y #\|)))))
+
+(defun draw-border (top-left bottom-right)
+  "Draw border."
+  (draw-border-corners top-left bottom-right)
+  (draw-border-edges top-left bottom-right))
+
+(defun horizontal-center (x1 x2 string)
+  "Return horizontal center for string between x1 and x1."
+  (let* ((mid-str (/ (length string) 2))
+	 (delta (abs (- x1 x2)))
+	 (mid-x (+ x1 (/ delta 2))))
+    (floor (- mid-x mid-str))))
+
+(defun draw-string (x y string)
+  (charms/ll:mvaddstr y x string))
+
+(defun draw-points (top-left bottom-right points)
+  (let* ((string (format nil "Points: ~A" points))
+	 (x (horizontal-center (x top-left) (x bottom-right) string))
+	 (y (+ 3 (y bottom-right))))
+    (draw-string x y string)))
+
 (defmethod draw ((board board))
   (let ((snake (get-snake board))
         (food (get-food board))
@@ -65,38 +121,5 @@
         (bottom-right (bottom-right board)))
     (draw snake)
     (draw food)
-
-    ;; draw border corners
-    (with-color *food-color*
-      (let ((*pixel-char* #\+))
-        (draw top-left)
-        (draw bottom-right)
-        (charms/ll:mvaddch (y bottom-right)
-                           (x top-left)
-                           (char-code *pixel-char*))
-        (charms/ll:mvaddch (y top-left)
-                           (x bottom-right)
-                           (char-code *pixel-char*))))
-
-    ;; draw border
-    (with-color *border-color*
-      (loop for x from (+ 1 (x top-left)) below (x bottom-right)
-         for top-border = (y top-left)
-         for bottom-border = (y bottom-right)
-         do (charms/ll:mvaddch top-border x (char-code #\-))
-         do (charms/ll:mvaddch bottom-border x (char-code #\-)))
-      (loop for y from (+ 1 (y top-left)) below (y bottom-right)
-         for left-border = (x top-left)
-         for right-border = (x bottom-right)
-         do (charms/ll:mvaddch y left-border (char-code #\|))
-         do (charms/ll:mvaddch y right-border (char-code #\|))))
-
-    ;; draw points
-    (let* ((string (format nil "Points: ~A" points))
-           (diff (- (x bottom-right)
-                    (x top-left)))
-           (middle (+ (x top-left)
-                      (/ diff 2)))
-           (x (floor (- middle (/ (length string) 2))))
-           (y (+ (y bottom-right) 3)))
-      (charms/ll:mvaddstr y x string))))
+    (draw-border top-left bottom-right)
+    (draw-points top-left bottom-right points)))
