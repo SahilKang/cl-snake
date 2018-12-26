@@ -118,16 +118,10 @@
     (list max-y max-x)))
 
 (defun draw-game-over (board)
-  (let* ((string (format nil "Game Over! Press q to exit"))
-         (top-left (top-left board))
-         (bottom-right (bottom-right board))
-         (diff (- (x bottom-right)
-                  (x top-left)))
-         (middle (+ (x top-left)
-                    (/ diff 2)))
-         (x (floor (- middle (/ (length string) 2))))
-         (y (+ (y bottom-right) 2)))
-    (charms/ll:mvaddstr y x string)))
+  (setf (banner board) "Game over! Press q to exit")
+  (charms/ll:erase)
+  (draw board)
+  (charms/ll:refresh))
 
 (defun main (columns rows)
   (destructuring-bind (max-y max-x) (init-ncurses)
@@ -144,7 +138,6 @@
 
       (charms/ll:timeout -1)
       (draw-game-over board)
-      (charms/ll:refresh)
       (loop
          for getch = (charms/ll:getch)
          until (quit? getch))))

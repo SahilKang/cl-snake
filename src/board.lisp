@@ -43,7 +43,11 @@
    (points
     :initform 0
     :reader points
-    :documentation "Current points in game.")))
+    :documentation "Current points in game.")
+   (banner
+    :initform "Use arrows or WASD, spacebar to pause, and q to quit."
+    :accessor banner
+    :documentation "Message to display for game board.")))
 
 (defgeneric update (board direction))
 (defgeneric game-over? (board))

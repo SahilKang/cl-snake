@@ -47,7 +47,8 @@
            #:top-left #:bottom-right
            #:get-snake
            #:get-food
-           #:points))
+           #:points
+	   #:banner))
 
 (defpackage #:draw
   (:use #:cl #:cartesian #:snake #:board)
