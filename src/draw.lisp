@@ -129,3 +129,17 @@
     (draw-border top-left bottom-right)
     (draw-points top-left bottom-right points)
     (draw-banner top-left bottom-right banner)))
+
+(defun vertical-direction? (board)
+  (let ((direction (direction (get-snake board))))
+    (or (string= direction 'up)
+	(string= direction 'down))))
+
+(defun shitty-framerate-hack (board)
+  (when (vertical-direction? board)
+    (sleep (/ (/ 50 2.3) 1000))))
+
+(defmethod draw ((state state))
+  (let ((board (get-board state)))
+    (shitty-framerate-hack board)
+    (draw board)))

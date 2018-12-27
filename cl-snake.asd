@@ -34,6 +34,7 @@
      (:file "cartesian")
      (:file "snake")
      (:file "board")
+     (:file "state")
      (:file "draw")
      (:file "main")))))
 

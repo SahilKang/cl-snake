@@ -45,7 +45,7 @@
     :reader points
     :documentation "Current points in game.")
    (banner
-    :initform "Use arrows or WASD, spacebar to pause, and q to quit."
+    :initform ""
     :accessor banner
     :documentation "Message to display for game board.")))
 

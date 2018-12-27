@@ -50,8 +50,16 @@
            #:points
 	   #:banner))
 
-(defpackage #:draw
+(defpackage #:state
   (:use #:cl #:cartesian #:snake #:board)
+  (:export #:state
+
+	   #:change
+	   #:running?
+	   #:get-board))
+
+(defpackage #:draw
+  (:use #:cl #:cartesian #:snake #:board #:state)
   (:export #:draw
            #:*snake-body-color*
            #:*snake-head-color*
@@ -61,5 +69,5 @@
            #:*food-char*))
 
 (defpackage #:main
-  (:use #:cl #:board #:draw #:cartesian)
+  (:use #:cl #:state #:draw)
   (:export #:entry-point))

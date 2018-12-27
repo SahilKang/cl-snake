@@ -19,82 +19,7 @@
 
 (in-package #:main)
 
-(defun getch->direction (getch default)
-  (cond
-    ((or (= getch (char-code #\w))
-         (= getch (char-code #\W))
-         (= getch charms/ll:KEY_UP))
-     'up)
-
-    ((or (= getch (char-code #\a))
-         (= getch (char-code #\A))
-         (= getch charms/ll:KEY_LEFT))
-     'left)
-
-    ((or (= getch (char-code #\s))
-         (= getch (char-code #\S))
-         (= getch charms/ll:KEY_DOWN))
-     'down)
-
-    ((or (= getch (char-code #\d))
-         (= getch (char-code #\D))
-         (= getch charms/ll:KEY_RIGHT))
-     'right)
-
-    (t default)))
-
-(defun quit? (getch)
-  (or (= getch (char-code #\q))
-      (= getch (char-code #\Q))))
-
-(defun pause? (getch)
-  (= getch (char-code #\space)))
-
-(defmacro pause-loop (quit-place)
-  `(loop
-      for getch = (charms/ll:getch)
-
-      when (pause? getch)
-      return nil
-
-      when (quit? getch)
-      do (setf ,quit-place t)
-      and return nil))
-
-(defun game-loop (board)
-  (loop
-     with quit? = nil
-     with direction = 'right
-
-     until quit?
-
-     for getch = (charms/ll:getch)
-     do (setf direction (getch->direction getch direction))
-
-     when (or (string= direction 'up)
-              (string= direction 'down))
-     do (sleep (/ (/ 50 2.3) 1000))
-
-     when (quit? getch)
-     do (setf quit? t)
-
-     when (pause? getch)
-     do (pause-loop quit?)
-
-     do (update board direction)
-     when (game-over? board)
-     do (setf quit? t)
-
-     do (charms/ll:erase)
-     do (draw board)
-     do (charms/ll:refresh)))
-
-(defun init-ncurses ()
-  (charms/ll:initscr)
-  (charms/ll:noecho)
-  (charms/ll:curs-set 0)
-  (charms/ll:keypad charms/ll:*stdscr* 1)
-
+(defun init-colors ()
   (charms/ll:start-color)
 
   (charms/ll:init-pair *snake-body-color*
@@ -111,40 +36,40 @@
 
   (charms/ll:init-pair *border-color*
                        charms/ll:color_green
-                       charms/ll:color_black)
+                       charms/ll:color_black))
 
-  (let (max-y max-x)
-    (charms/ll:getmaxyx charms/ll:*stdscr* max-y max-x)
-    (list max-y max-x)))
+(defun init-ncurses ()
+  (charms/ll:initscr)
+  (charms/ll:noecho)
+  (charms/ll:curs-set 0)
+  (charms/ll:keypad charms/ll:*stdscr* 1)
+  (charms/ll:timeout 50)
 
-(defun draw-game-over (board)
-  (setf (banner board) "Game over! Press q to exit")
-  (charms/ll:erase)
-  (draw board)
-  (charms/ll:refresh))
+  (init-colors)
 
-(defun main (columns rows)
-  (destructuring-bind (max-y max-x) (init-ncurses)
-    (let* ((top-left (point (floor (- (/ max-x 2)
-                                      (/ columns 2)))
-                            (floor (- (/ max-y 2)
-                                      (/ rows 2)))))
-           (bottom-right (point (+ (x top-left) (- columns 1))
-                                (+ (y top-left) (- rows 1))))
-           (board (board top-left bottom-right)))
+  (let (terminal-width terminal-height)
+    (charms/ll:getmaxyx charms/ll:*stdscr* terminal-height terminal-width)
+    (list terminal-width terminal-height)))
 
-      (charms/ll:timeout 50)
-      (game-loop board)
+(defun game-loop (state)
+  (loop
+     while (running? state)
 
-      (charms/ll:timeout -1)
-      (draw-game-over board)
-      (loop
-         for getch = (charms/ll:getch)
-         until (quit? getch))))
+     for input = (charms/ll:getch)
+     do (change state input)
+
+     do (charms/ll:erase)
+     do (draw state)
+     do (charms/ll:refresh)))
+
+(defun main (width height)
+  (destructuring-bind (terminal-width terminal-height) (init-ncurses)
+    (let ((state (state width height terminal-width terminal-height)))
+      (game-loop state)))
   (charms/ll:endwin))
 
 (defun parse-args (args)
-  "Parses list of strings into list of integers (columns rows)."
+  "Parses list of strings into list of integers (width height)."
   (if (= (length args) 2)
       (list (parse-integer (first args)) (parse-integer (second args)))
       (list 60 18)))
