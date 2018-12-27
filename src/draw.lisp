@@ -43,14 +43,13 @@
   (charms/ll:mvaddch (y point) (x point) (char-code *pixel-char*)))
 
 (defmethod draw ((snake snake))
-  (let ((body (body snake)))
-    (let ((*pixel-char* *snake-char*))
-      (with-color *snake-head-color*
-        (draw (elt body (- (length body) 1))))
-      (with-color *snake-body-color*
-        (loop for i from 0 below (- (length body) 1)
-           for scale = (elt body i)
-           do (draw scale))))))
+  (let ((*pixel-char* *snake-char*))
+    (with-color *snake-head-color*
+      (draw (head snake)))
+    (with-color *snake-body-color*
+      (loop
+	 for scale across (body snake)
+	 do (draw scale)))))
 
 (defmethod draw ((food food))
   (let ((*pixel-char* *food-char*))

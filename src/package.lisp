@@ -36,7 +36,7 @@
            #:grow #:move
            #:next-position
            #:direction
-           #:body))
+	   #:head #:body))
 
 (defpackage #:board
   (:use #:cl #:cartesian #:snake)

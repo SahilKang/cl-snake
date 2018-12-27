@@ -24,12 +24,12 @@
     :initarg :top-left
     :initform (error "Must supply :top-left")
     :reader top-left
-    :documentation "Pixel representing top-left of board.")
+    :documentation "Point representing top-left of board.")
    (bottom-right
     :initarg :bottom-right
     :initform (error "Must supply :bottom-right")
     :reader bottom-right
-    :documentation "Pixel representing bottom-right of board.")
+    :documentation "Point representing bottom-right of board.")
    (snake
     :initarg :snake
     :initform (error "Must supply :snake")
@@ -116,15 +116,15 @@
           (>= y (y bottom-right))))))
 
 (defun snake-overlapped? (snake)
-  (let ((body (body snake)))
-    (let ((head (elt body (- (length body) 1)))
-          (same-position? (lambda (scale-1 scale-2)
-                            (= 0 (distance scale-1 scale-2)))))
-      (loop for i from 0 below (- (length body) 1)
-         for body-scale = (elt body i)
-         when (funcall same-position? head body-scale)
-         do (return-from snake-overlapped? t))
-      nil)))
+  (flet ((same-position? (p1 p2) (= 0 (distance p1 p2))))
+    (loop
+       with head = (head snake)
+       with body = (body snake)
+
+       for scale across body
+       when (same-position? head scale)
+       do (return-from snake-overlapped? t))
+    nil))
 
 (defmethod game-over? ((board board))
   (with-slots (snake) board

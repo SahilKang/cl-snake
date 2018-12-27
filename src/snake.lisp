@@ -20,11 +20,10 @@
 (in-package #:snake)
 
 (defclass snake ()
-  ((body
-    :initarg :body
-    :initform (error "Must supply :body colletion.")
-    :reader body
-    :documentation "Container representing snake body.")
+  ((scales
+    :initarg :scales
+    :initform (error "Must supply :scales collection.")
+    :documentation "Container of scales comprising snake.")
    (direction
     :initarg :direction
     :initform (error "Must supply a :direction")
@@ -33,25 +32,33 @@
 
 (defgeneric grow (snake direction))
 (defgeneric move (snake direction))
+(defgeneric head (snake))
+(defgeneric body (snake))
 
 (defun snake (head direction)
   "head is a scale and direction is 'left 'right 'up 'down."
-  (let ((body (make-array 1
+  (let ((scales (make-array 1
                           :fill-pointer 1
                           :adjustable t
                           :element-type 'cartesian:scale
                           :initial-element head)))
-    (make-instance 'snake :body body :direction direction)))
+    (make-instance 'snake :scales scales :direction direction)))
+
+(defmethod head ((snake snake))
+  (with-slots (scales) snake
+    (let ((last-scale (elt scales (- (length scales) 1))))
+      last-scale)))
+
+(defmethod body ((snake snake))
+  (with-slots (scales) snake
+    (let ((all-but-last (subseq scales 0 (- (length scales) 1))))
+      (nreverse all-but-last))))
 
 (defmethod x ((snake snake))
-  (with-slots (body) snake
-    (let ((last-scale (elt body (- (length body) 1))))
-      (x last-scale))))
+  (x (head snake)))
 
 (defmethod y ((snake snake))
-  (with-slots (body) snake
-    (let ((last-scale (elt body (- (length body) 1))))
-      (y last-scale))))
+  (y (head snake)))
 
 (defun opposite-directions? (dir-1 dir-2)
   "Return true if directions are opposites."
@@ -71,14 +78,14 @@
       (t (error "Unknown direction.")))))
 
 (defmethod grow ((snake snake) direction)
-  (with-slots (body (snake-direction direction)) snake
+  (with-slots (scales (snake-direction direction)) snake
     (unless (opposite-directions? snake-direction direction)
       (setf snake-direction direction))
     (let ((head (change-class (next-position snake) 'cartesian:scale)))
-      (vector-push-extend head body))))
+      (vector-push-extend head scales))))
 
 (defmethod move ((snake snake) direction)
   (grow snake direction)
-  (with-slots (body) snake
-    (let ((tail (elt body 0)))
-      (setf body (delete tail body :test #'eq :count 1)))))
+  (with-slots (scales) snake
+    (let ((tail (elt scales 0)))
+      (setf scales (delete tail scales :test #'eq :count 1)))))
