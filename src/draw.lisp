@@ -42,14 +42,15 @@
 (defmethod draw ((point point))
   (charms/ll:mvaddch (y point) (x point) (char-code *pixel-char*)))
 
+;; draw the head after body so it's still visible during a collision
 (defmethod draw ((snake snake))
   (let ((*pixel-char* *snake-char*))
-    (with-color *snake-head-color*
-      (draw (head snake)))
     (with-color *snake-body-color*
       (loop
 	 for scale across (body snake)
-	 do (draw scale)))))
+	 do (draw scale)))
+    (with-color *snake-head-color*
+      (draw (head snake)))))
 
 (defmethod draw ((food food))
   (let ((*pixel-char* *food-char*))
@@ -117,6 +118,7 @@
 	 (y (+ 3 (y bottom-right))))
     (draw-string x y string)))
 
+;; draw snake after border so it's head is still visible during out-of-bounds
 (defmethod draw ((board board))
   (let ((snake (get-snake board))
         (food (get-food board))
@@ -124,11 +126,12 @@
 	(banner (banner board))
         (top-left (top-left board))
         (bottom-right (bottom-right board)))
-    (draw snake)
     (draw food)
     (draw-border top-left bottom-right)
     (draw-points top-left bottom-right points)
-    (draw-banner top-left bottom-right banner)))
+    (draw-banner top-left bottom-right banner)
+    (draw snake)
+    (charms/ll:move 0 0)))
 
 (defun vertical-direction? (board)
   (let ((direction (direction (get-snake board))))
