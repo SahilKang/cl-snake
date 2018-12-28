@@ -47,8 +47,8 @@
   (let ((*pixel-char* *snake-char*))
     (with-color *snake-body-color*
       (loop
-	 for scale across (body snake)
-	 do (draw scale)))
+         for scale across (body snake)
+         do (draw scale)))
     (with-color *snake-head-color*
       (draw (head snake)))))
 
@@ -61,8 +61,8 @@
   "Draw the border corners."
   (with-color *food-color*
     (let ((*pixel-char* #\+)
-	  (bottom-left (point (x top-left) (y bottom-right)))
-	  (top-right (point (x bottom-right) (y top-left))))
+          (bottom-left (point (x top-left) (y bottom-right)))
+          (top-right (point (x bottom-right) (y top-left))))
       (draw top-left)
       (draw bottom-right)
       (draw bottom-left)
@@ -74,23 +74,23 @@
 
       ;; top and bottom edges
       (loop
-	 with top-y = (y top-left)
-	 with bottom-y = (y bottom-right)
+         with top-y = (y top-left)
+         with bottom-y = (y bottom-right)
 
-	 for x from (+ 1 (x top-left)) below (x bottom-right)
+         for x from (+ 1 (x top-left)) below (x bottom-right)
 
-	 do (draw-char x top-y #\-)
-	 do (draw-char x bottom-y #\-))
+         do (draw-char x top-y #\-)
+         do (draw-char x bottom-y #\-))
 
       ;; left and right edges
       (loop
-	 with left-x = (x top-left)
-	 with right-x = (x bottom-right)
+         with left-x = (x top-left)
+         with right-x = (x bottom-right)
 
-	 for y from (+ 1 (y top-left)) below (y bottom-right)
+         for y from (+ 1 (y top-left)) below (y bottom-right)
 
-	 do (draw-char left-x y #\|)
-	 do (draw-char right-x y #\|)))))
+         do (draw-char left-x y #\|)
+         do (draw-char right-x y #\|)))))
 
 (defun draw-border (top-left bottom-right)
   "Draw border."
@@ -100,8 +100,8 @@
 (defun horizontal-center (x1 x2 string)
   "Return horizontal center for string between x1 and x1."
   (let* ((mid-str (/ (length string) 2))
-	 (delta (abs (- x1 x2)))
-	 (mid-x (+ x1 (/ delta 2))))
+         (delta (abs (- x1 x2)))
+         (mid-x (+ x1 (/ delta 2))))
     (floor (- mid-x mid-str))))
 
 (defun draw-string (x y string)
@@ -109,13 +109,13 @@
 
 (defun draw-banner (top-left bottom-right banner)
   (let ((x (horizontal-center (x top-left) (x bottom-right) banner))
-	(y (+ 2 (y bottom-right))))
+        (y (+ 2 (y bottom-right))))
     (draw-string x y banner)))
 
 (defun draw-points (top-left bottom-right points)
   (let* ((string (format nil "Points: ~A" points))
-	 (x (horizontal-center (x top-left) (x bottom-right) string))
-	 (y (+ 3 (y bottom-right))))
+         (x (horizontal-center (x top-left) (x bottom-right) string))
+         (y (+ 3 (y bottom-right))))
     (draw-string x y string)))
 
 ;; draw snake after border so it's head is still visible during out-of-bounds
@@ -123,7 +123,7 @@
   (let ((snake (get-snake board))
         (food (get-food board))
         (points (points board))
-	(banner (banner board))
+        (banner (banner board))
         (top-left (top-left board))
         (bottom-right (bottom-right board)))
     (draw food)
@@ -136,7 +136,7 @@
 (defun vertical-direction? (board)
   (let ((direction (direction (get-snake board))))
     (or (string= direction 'up)
-	(string= direction 'down))))
+        (string= direction 'down))))
 
 (defun shitty-framerate-hack (board)
   (when (vertical-direction? board)

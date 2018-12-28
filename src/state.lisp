@@ -43,17 +43,17 @@
 
 (defun state (width height terminal-width terminal-height)
   (let* ((half-w (/ width 2))
-	 (half-h (/ height 2))
-	 (half-tw (/ terminal-width 2))
-	 (half-th (/ terminal-height 2))
+         (half-h (/ height 2))
+         (half-tw (/ terminal-width 2))
+         (half-th (/ terminal-height 2))
 
-	 (top-left (point (floor (- half-tw half-w))
-			  (floor (- half-th half-h))))
+         (top-left (point (floor (- half-tw half-w))
+                          (floor (- half-th half-h))))
 
-	 (bottom-right (point (+ (x top-left) (- width 1))
-			      (+ (y top-left) (- height 1))))
+         (bottom-right (point (+ (x top-left) (- width 1))
+                              (+ (y top-left) (- height 1))))
 
-	 (board (board top-left bottom-right)))
+         (board (board top-left bottom-right)))
     (setf (banner board) +running+)
     (make-instance 'state :board board)))
 
@@ -96,33 +96,33 @@
 (defmethod restart-state ((state state))
   (with-slots (running? paused? board) state
     (setf running? t
-	  paused? nil
-	  board (board (top-left board) (bottom-right board))
-	  (banner board) +running+)))
+          paused? nil
+          board (board (top-left board) (bottom-right board))
+          (banner board) +running+)))
 
 ;; making a state-machine DSL might be fun
 (defmethod change ((state state) (input integer))
   (with-slots (running? paused? board) state
     (if (not running?)
-	(error "Reached terminal state!")
-	(cond
-	  ((game-over? board)
-	   (cond
-	     ((quit? input) (setf running? nil))
-	     ((restart? input) (restart-state state))))
+        (error "Reached terminal state!")
+        (cond
+          ((game-over? board)
+           (cond
+             ((quit? input) (setf running? nil))
+             ((restart? input) (restart-state state))))
 
-	  (paused?
-	   (when (pause? input)
-	     (setf paused? nil
-		   (banner board) +running+)))
+          (paused?
+           (when (pause? input)
+             (setf paused? nil
+                   (banner board) +running+)))
 
-	  ((pause? input)
-	   (setf paused? t
-		 (banner board) +paused+))
+          ((pause? input)
+           (setf paused? t
+                 (banner board) +paused+))
 
-	  (t
-	   (let* ((current-direction (direction (get-snake board)))
-		  (new-direction (input->direction input current-direction)))
-	     (update board new-direction)
-	     (when (game-over? board)
-	       (setf (banner board) +game-over+))))))))
+          (t
+           (let* ((current-direction (direction (get-snake board)))
+                  (new-direction (input->direction input current-direction)))
+             (update board new-direction)
+             (when (game-over? board)
+               (setf (banner board) +game-over+))))))))

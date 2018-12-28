@@ -36,7 +36,7 @@
            #:grow #:move
            #:next-position
            #:direction
-	   #:head #:body))
+           #:head #:body))
 
 (defpackage #:board
   (:use #:cl #:cartesian #:snake)
@@ -48,15 +48,15 @@
            #:get-snake
            #:get-food
            #:points
-	   #:banner))
+           #:banner))
 
 (defpackage #:state
   (:use #:cl #:cartesian #:snake #:board)
   (:export #:state
 
-	   #:change
-	   #:running?
-	   #:get-board))
+           #:change
+           #:running?
+           #:get-board))
 
 (defpackage #:draw
   (:use #:cl #:cartesian #:snake #:board #:state)

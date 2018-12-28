@@ -17,9 +17,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	    --non-interactive \
 	    --eval '(quicklisp-quickstart:install)' \
 	    --eval '(ql:quickload :cl-snake)' \
-	    --eval '(asdf:operate :program-op :cl-snake)' \
+	    --eval '(sb-ext:save-lisp-and-die \
+                      "cl-snake" \
+                      :toplevel (function main:entry-point) \
+                      :executable t \
+                      :purify t \
+                      :compression 9)' \
+            --end-toplevel-options \
     && mkdir /app \
-    && mv $(find / -name 'cl-snake' -type f) /app/cl-snake
+    && mv ./cl-snake /app/cl-snake
 
 ###############################################################################
 # Copy app into final image
@@ -27,12 +33,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 FROM debian:stable
 
+ENV TERM='xterm-256color'
+
 WORKDIR /app
 
 COPY --from=builder /app/cl-snake ./
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libncurses5
-
-CMD ["60", "18"]
-ENTRYPOINT ["/app/cl-snake"]
+ENTRYPOINT ["/bin/bash"]
